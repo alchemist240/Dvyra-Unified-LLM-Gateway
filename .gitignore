@@ -1,0 +1,22 @@
+# --- Security (NEVER UPLOAD THESE) ---
+.env
+.env.local
+
+# --- Python System Files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+
+# --- IDE Settings (Optional but recommended) ---
+.vscode/
+.idea/
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db

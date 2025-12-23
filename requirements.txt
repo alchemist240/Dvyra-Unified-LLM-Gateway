@@ -1,0 +1,6 @@
+litellm[proxy]>=1.40.0
+uvicorn
+streamlit
+pyyaml
+watchdog
+python-dotenv

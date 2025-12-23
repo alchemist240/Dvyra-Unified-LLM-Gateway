@@ -1,0 +1,99 @@
+model_list:
+  # ==============================
+  # 1. GOOGLE GEMINI (2.5 Series)
+  # ==============================
+  # DAILY DRIVER: Standard Flash 2.5
+  - model_name: gemini-flash
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+      rpm: 10
+
+  # CHEAP/FAST: Flash Lite 2.5
+  - model_name: gemini-lite
+    litellm_params:
+      model: gemini/gemini-2.5-flash-lite
+      api_key: os.environ/GEMINI_API_KEY
+
+  # ==============================
+  # 2. GROQ (META LLAMA)
+  # ==============================
+  # CHEAP: Llama 3.1 8B (Instant)
+  - model_name: llama-8b
+    litellm_params:
+      model: groq/llama-3.1-8b-instant
+      api_key: os.environ/GROQ_API_KEY
+
+  # SMART: Llama 3.3 70B (Versatile)
+  - model_name: llama-70b
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: os.environ/GROQ_API_KEY
+
+  # ==============================
+  # 3. DEEPSEEK
+  # ==============================
+  # CHEAP: DeepSeek V3 (Chat)
+  - model_name: deepseek-chat
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  # SMART: DeepSeek R1 (Reasoning)
+  - model_name: deepseek-smart
+    litellm_params:
+      model: deepseek/deepseek-reasoner
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  # CODER: DeepSeek V3 (Coder)
+  - model_name: deepseek-coder
+    litellm_params:
+      model: deepseek/deepseek-coder
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  # ==============================
+  # 4. OPENAI
+  # ==============================
+  # CHEAP: GPT-4o Mini
+  - model_name: gpt-mini
+    litellm_params:
+      model: gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  # LEGACY: GPT-3.5 Turbo
+  - model_name: gpt-3.5
+    litellm_params:
+      model: gpt-3.5-turbo
+      api_key: os.environ/OPENAI_API_KEY
+
+  # EXPENSIVE: GPT-4o
+  - model_name: gpt-4o
+    litellm_params:
+      model: gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  # === NEW ADDITION ===
+  alerting:
+    - slack
+  alerting_threshold: 2.0
+  
+
+litellm_settings:
+  # === RELIABILITY LAYER ===
+  # 2 Retries before switching to fallback
+  num_retries: 2
+  callbacks:
+    - error_alert_callback.proxy_handler_instance
+
+
+  
+  # Auto-Switching Logic
+  fallbacks:
+    - "llama-8b": ["deepseek-chat"]         # If Free Llama fails -> Cheap DeepSeek
+    - "gemini-flash": ["llama-70b"]         # If Gemini fails -> Llama 70B
+    - "gemini-lite": ["gpt-mini"]           # If Gemini Lite fails -> GPT Mini
+    - "llama-70b": ["deepseek-smart"]       # If Llama 70B fails -> DeepSeek R1
+    - "deepseek-coder": ["gpt-4o"]          # If Coder fails -> The Best (GPT-4o)
+    - "gpt-4o": ["gemini-flash"]   
